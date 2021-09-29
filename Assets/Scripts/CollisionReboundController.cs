@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CollisionBloack : MonoBehaviour
+public class CollisionReboundController : MonoBehaviour
 {
     // Start is called before the first frame update
-    public GameObject marker;
+    [SerializeField]
+    private GameObject marker;
     [Range(0,100f)]
     public float m_Thrust = 2f;
     Vector3 impact = Vector3.zero;
