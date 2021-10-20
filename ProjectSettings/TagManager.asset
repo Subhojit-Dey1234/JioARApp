@@ -21,6 +21,7 @@ TagManager:
   - SecondryLayer
   - ErrorTextLayer
   - Enemy
+  - Stadium
   layers:
   - Default
   - TransparentFX
@@ -28,8 +29,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - Player
+  - Enemy
   - Head
   - Left
   - Right
