@@ -1,15 +1,16 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ModeDisplayManager : MonoBehaviour
 {
     [SerializeField]
     private GameObject player;
     private BeyBladeParameters beyBladeParameters;
-    private Text text;
+    private TextMeshProUGUI text;
     void Start()
     {
-        text = GetComponent<Text>();
+        text = GetComponent<TextMeshProUGUI>();
         beyBladeParameters = player.GetComponent<BeyBladeParameters>();
     }
 
