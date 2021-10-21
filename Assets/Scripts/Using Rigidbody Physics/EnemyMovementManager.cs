@@ -16,6 +16,7 @@ public class EnemyMovementManager : MonoBehaviour
     private RotationManager rotationManager;
     private StateMachine stateMachine;
     private GameObject player;
+    private bool shouldMove = false;
     private void Awake()
     {
         rotationManager = GetComponent<RotationManager>();
@@ -31,6 +32,8 @@ public class EnemyMovementManager : MonoBehaviour
 
     private void Move()
     {
+        if (!shouldMove)
+            return;
         if (rotationManager.IsRotationStopped)
             return;
         moveDirection = CalculateAIMovement();
@@ -53,6 +56,7 @@ public class EnemyMovementManager : MonoBehaviour
         {
             Debug.Log($" {gameObject.name} Hit ground");
             rbd.constraints = RigidbodyConstraints.FreezePositionY | RigidbodyConstraints.FreezeRotationZ | RigidbodyConstraints.FreezeRotationX;
+            shouldMove = true;
         }
     }
 

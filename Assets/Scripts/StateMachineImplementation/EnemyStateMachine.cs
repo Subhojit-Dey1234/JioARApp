@@ -42,8 +42,11 @@ public class EnemyStateMachine : StateMachine
         }
     }
 
-    //override public Vector3 Move(float _SafeDistance)
-    //{
-    //    return state.Move(_SafeDistance);
-    //}
+    override public Vector3 Move(float _SafeDistance)
+    {
+        if (state != null)
+            return state.Move(_SafeDistance);
+        else
+            return Vector3.zero;
+    }
 }

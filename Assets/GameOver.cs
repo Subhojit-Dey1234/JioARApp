@@ -9,6 +9,8 @@ public class GameOver : MonoBehaviour
 {
     [SerializeField]
     private TextMeshProUGUI UIText;
+    [SerializeField]
+    private Vector3 maxScale =  Vector3.one* 0.66f;
     private bool hasPoppedUp = false;
     private void OnEnable()
     {
@@ -18,7 +20,7 @@ public class GameOver : MonoBehaviour
     public void DisplayGameOver(GameObject _gameObject)
     {
         gameObject.SetActive(true);
-        gameObject.transform.localScale = Vector3.one;
+        gameObject.transform.localScale = maxScale;
         Debug.Log("Game Over");
         if (hasPoppedUp)
             return;

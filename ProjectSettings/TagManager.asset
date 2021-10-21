@@ -22,6 +22,7 @@ TagManager:
   - ErrorTextLayer
   - Enemy
   - Stadium
+  - WorldCanvas
   layers:
   - Default
   - TransparentFX

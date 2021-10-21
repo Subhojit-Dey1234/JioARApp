@@ -7,8 +7,8 @@ public class BalanceState : State
     {
         beyBladeParameters.CurentMode = "Balance Mode";
         Debug.Log($"{gameObject} has entered { beyBladeParameters.CurentMode}");
-        //if (gameObject.CompareTag("Enemy"))
-        //    StartCoroutine(AIModeSwitch(Random.Range(beyBladeParameters.stateChangeGapLow, beyBladeParameters.stateChangeGapHigh), _safeDistance));
+        if (gameObject.CompareTag("Enemy"))
+            StartCoroutine(AIModeSwitch(Random.Range(beyBladeParameters.stateChangeGapLow, beyBladeParameters.stateChangeGapHigh), _safeDistance));
     }
     public override void TakeDamage(float _dmg)
     {
@@ -107,20 +107,23 @@ public class BalanceState : State
     {
         Destroy(this);
         gameObject.AddComponent<AttackState>();
-        stateMachine.ChangeState(GetComponent<AttackState>());
+        var arr = GetComponents<AttackState>();
+        stateMachine.ChangeState(arr[arr.Length - 1]);
     }
 
     protected override void NewDefenceState()
     {
         Destroy(this);
         gameObject.AddComponent<DefenceState>();
-        stateMachine.ChangeState(GetComponent<DefenceState>());
+        var arr = GetComponents<DefenceState>();
+        stateMachine.ChangeState(arr[arr.Length - 1]);
     }
 
     protected override void NewBalanceState()
     {
         Destroy(this);
         gameObject.AddComponent<BalanceState>();
-        stateMachine.ChangeState(GetComponent<BalanceState>());
+        var arr = GetComponents<BalanceState>();
+        stateMachine.ChangeState(arr[arr.Length - 1]);
     }
 }

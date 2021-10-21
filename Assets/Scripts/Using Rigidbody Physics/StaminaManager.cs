@@ -21,6 +21,7 @@ public class StaminaManager : MonoBehaviour
     private bool hasDied = false;
     void Start()
     {
+        Time.timeScale = 1f;
         stateMachine = GetComponent<StateMachine>();
         currentStamina = startingStamina;
     }
@@ -49,6 +50,7 @@ public class StaminaManager : MonoBehaviour
             Debug.Log("Stamina = 0");
             currentStamina = 0;
             hasDied = true;
+            Time.timeScale = 0f;
             OnDied?.Invoke(gameObject);
         }
     }
