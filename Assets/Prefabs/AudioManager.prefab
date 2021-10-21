@@ -50,3 +50,15 @@ MonoBehaviour:
     loop: 0
     name: BeyBladeHit
     source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: d4a444e41c070c34fa3c42bcdb6bb3c7, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    name: BeyBladeClash
+    source: {fileID: 0}
+  - clip: {fileID: 8300000, guid: 6ef7aa7b2390bae40b19d064b95b4700, type: 3}
+    volume: 1
+    pitch: 1
+    loop: 0
+    name: BeyBladeSpin
+    source: {fileID: 0}

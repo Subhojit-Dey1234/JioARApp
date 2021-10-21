@@ -8,6 +8,8 @@ public class PlayerCollisionDetection : MonoBehaviour
     public delegate void CollisionExitHandler();
     public static event CollisionEnterHandler OnCollisionEntered;
     public static event CollisionExitHandler OnCollisionExited;
+    public delegate void ForceHandler(GameObject gameObject, Vector3 _force);
+    public static event ForceHandler OnForceAdded;
     [SerializeField]
     private float collisionImpulseMultiplier = 10000;
     [SerializeField]
@@ -18,31 +20,31 @@ public class PlayerCollisionDetection : MonoBehaviour
     [SerializeField]
     GameObject model;
     [SerializeField]
-    private float collisionGap = 0.5f;
+    private float collisionGaphWhileInContact = 1f;
+    [SerializeField]
+    private float timeLagBetweenTwoCollisions = 0.25f;
     private bool isColliding = false;
+    private bool allowNextCollision = true;
+    private StateMachine stateMachine;
     private void Awake()
     {
         rbd = GetComponent<Rigidbody>();
+        stateMachine = GetComponent<StateMachine>();
     }
 
     private void OnCollisionEnter(Collision _collision)
     {
+        if (!allowNextCollision)
+            return;
         var _other = _collision.gameObject;
         if (_collision.gameObject.CompareTag("Enemy"))
         {
+            Debug.Log("Collided");
             Rigidbody _otherRBD = _other.GetComponent<Rigidbody>();
-            //Debug.Log("Collided");
             var _lineOfImpact = (transform.position - _other.transform.position);
             _lineOfImpact.Normalize();
-            //Debug.Log($"Velocity of {_other.name} = {_otherRBD.velocity.magnitude}");
-            //Debug.Log($"Velocity of {gameObject.name} = {rbd.velocity.magnitude}");
-            //var _forceMagnitude = Vector3.Dot(other.GetComponent<Rigidbody>().velocity - rbd.velocity, _lineOfImpact);
-            //Debug.Log($"Force magnitde on {gameObject.name} = {_forceMagnitude}");
             Vector3 _relVel = _otherRBD.velocity - rbd.velocity;
             _relVel.Normalize();
-            //Debug.Log($"LineOfImpact = {_lineOfImpact}");
-            //Debug.Log($"RelVel = {_relVel}");
-            //Debug.Log($"Dot product = {Vector3.Dot(_relVel, _lineOfImpact)}");
             if (Vector3.Dot(_relVel, _lineOfImpact) >= 0.1f)
             {
                 rbd.AddForce(_lineOfImpact * collisionImpulseMultiplier, ForceMode.Impulse);
@@ -50,66 +52,40 @@ public class PlayerCollisionDetection : MonoBehaviour
             }
             Instantiate(spark, _collision.contacts[0].point, Quaternion.identity);
             AudioManager.Instance.PlaySoundOneShot("BeyBladeHit");
-            OnCollisionEntered?.Invoke(_other);
+            stateMachine.DoDamage(_other);
+            _other.GetComponent<StateMachine>().DoDamage(gameObject);
             isColliding = true;
-            StartCoroutine(ContinueCollisions(_collision));
+            StartCoroutine(ContinueCollisions(_other, _collision.contacts[0].point));
+            StartCoroutine(StartCountDonForNextCollision());
         }
+    }
+
+    IEnumerator StartCountDonForNextCollision()
+    {
+        allowNextCollision = false;
+        yield return new WaitForFixedUpdate();
+        allowNextCollision = true;
     }
     private void OnCollisionExit(Collision _collision)
     {
         var _other = _collision.gameObject;
         if (_collision.gameObject.CompareTag("Enemy"))
         {
-            //OnCollisionExited?.Invoke();
             isColliding = false;
         }
     }
 
-    IEnumerator ContinueCollisions(Collision _collision)
+    IEnumerator ContinueCollisions(GameObject _enemyObject, Vector3 pointOfContact)
     {
-        yield return new WaitForSeconds(collisionGap);
+        yield return new WaitForSeconds(collisionGaphWhileInContact);
         if(isColliding)
         {
             AudioManager.Instance.PlaySoundOneShot("BeyBladeHit");
-            Instantiate(spark, _collision.contacts[0].point, Quaternion.identity);
-            OnCollisionEntered?.Invoke(_collision.gameObject);
-            StartCoroutine(ContinueCollisions(_collision));
+            Instantiate(spark, pointOfContact, Quaternion.identity);
+            Debug.Log($"Inside Coroutine: this object = {this.gameObject}, enemy object = {_enemyObject} ");
+            stateMachine.DoDamage(_enemyObject);
+            _enemyObject.GetComponent<StateMachine>().DoDamage(this.gameObject);
+            StartCoroutine(ContinueCollisions(_enemyObject, pointOfContact));
         }
     }
-    //void DetectCollision()
-    //{
-    //    //Debug.Log("Collisions detecting");
-    //    int maxColliders = 10;
-    //    Collider[] hitColliders = new Collider[maxColliders];
-    //    int numColliders = Physics.OverlapSphereNonAlloc(model.transform.position, cCollider.radius, hitColliders);
-    //    Debug.DrawRay(model.transform.position, model.transform.forward * cCollider.radius , Color.red, 2f);
-    //    Debug.Log($"{hitColliders}");
-    //    for (int i = 0; i < numColliders; i++)
-    //    {
-    //        if(hitColliders[i].gameObject.CompareTag("Enemy"))
-    //        {
-    //            var _other = hitColliders[i].gameObject;
-    //            Rigidbody _otherRBD = _other.GetComponent<Rigidbody>();
-    //            Debug.Log("Collided");
-    //            var _lineOfImpact = (transform.position - _other.transform.position);
-    //            _lineOfImpact.Normalize();
-    //            Debug.Log($"Velocity of {_other.name} = {_otherRBD.velocity.magnitude}");
-    //            Debug.Log($"Velocity of {gameObject.name} = {rbd.velocity.magnitude}");
-    //            //var _forceMagnitude = Vector3.Dot(other.GetComponent<Rigidbody>().velocity - rbd.velocity, _lineOfImpact);
-    //            //Debug.Log($"Force magnitde on {gameObject.name} = {_forceMagnitude}");
-    //            Vector3 _relVel = _otherRBD.velocity - rbd.velocity;
-    //            _relVel.Normalize();
-    //            Debug.Log($"LineOfImpact = {_lineOfImpact}");
-    //            Debug.Log($"RelVel = {_relVel}");
-    //            Debug.Log($"Dot product = {Vector3.Dot(_relVel, _lineOfImpact)}");
-    //            if (Vector3.Dot(_relVel, _lineOfImpact) >= 0.9f)
-    //            {
-    //                rbd.AddForce(_lineOfImpact * collisionImpulseMultiplier, ForceMode.Impulse);
-    //                _otherRBD.AddForce(-1 * _lineOfImpact * collisionImpulseMultiplier, ForceMode.Impulse);
-    //            }
-    //            Instantiate(spark, 0.5f * (transform.position + _other.transform.position), Quaternion.identity);
-    //            AudioManager.Instance.PlaySoundOneShot("BeyBladeHit");
-    //        }
-    //    }
-    //}
 }

@@ -74,4 +74,27 @@ public class AudioManager : MonoBehaviour
         }
 
     }
+    public void PlaySoundWithDecay(string clipName, float decayRate)
+    {
+        var audio = sounds.First(s => s.name.Equals(clipName));
+        if (audio == null)
+        {
+            Debug.LogWarning("Sound Does not exist");
+        }
+        else
+        {
+            audio.source.volume = 1f;
+            audio.source.Play();
+            StartCoroutine(Decay(decayRate, audio.source));
+        }
+
+    }
+
+   IEnumerator Decay(float decayRate, AudioSource audioSource)
+    {
+        yield return new WaitForEndOfFrame();
+        if (audioSource.volume - decayRate * Time.deltaTime >= 0)
+            audioSource.volume -= decayRate * Time.deltaTime;
+        StartCoroutine(Decay(decayRate, audioSource));
+    }
 }

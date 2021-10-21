@@ -34,4 +34,10 @@ public class BeyBladeParameters: MonoBehaviour
     public float balanceMode_SelfDamage;
     [SerializeField]
     public float balanceMode_StaminaLoss;
+    public string CurentMode;
+    public float SafeDistance = 1f;
+    [Range(0f, 20f)]
+    public float stateChangeGapLow;
+    [Range(0f, 20f)]
+    public float stateChangeGapHigh;
 }

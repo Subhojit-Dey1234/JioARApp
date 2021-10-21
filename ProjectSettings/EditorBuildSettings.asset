@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/RotateTry.unity
+    path: Assets/Scenes/SplashScreen.unity
+    guid: 55916913bb85caa41b80a2fc8ce60c3e
+  - enabled: 1
+    path: Assets/Scenes/Instructions.unity
+    guid: 412e19ea56303df49a0ad5ab1d3d572d
+  - enabled: 1
+    path: Assets/Scenes/GamePlay.unity
     guid: 8c2956600ed923649a05cb7f51604786
   m_configObjects: {}

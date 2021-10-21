@@ -10,9 +10,10 @@ public class RotationManager : MonoBehaviour
     [SerializeField]
     private Vector3 m_EulerAngleVelocity = Vector3.up;
     [SerializeField]
-    private float retardingTorque = 1000000;
+    private float retardingTorque = 500000;
     private bool m_isRotationStopped = false;
     private Rigidbody rbd;
+    private StaminaManager staminaManager;
     public bool IsRotationStopped
     {
         get { return m_isRotationStopped; }
@@ -21,32 +22,24 @@ public class RotationManager : MonoBehaviour
     private void Start()
     {
         rbd = GetComponent<Rigidbody>();
+        staminaManager = GetComponent<StaminaManager>();
         angularSpeed = initalAngularSpeed;
     }
     private void FixedUpdate()
     {
         Rotate();
     }
-    private void Update()
-    {
-        Retard();
-        
-    }
-
-    private void Retard()
-    {
-        angularSpeed -= Time.deltaTime * retardingTorque;
-
-        if(angularSpeed <= 0)
-        {
-            angularSpeed = 0;
-            m_isRotationStopped = true;
-        }    
-    }
-
+ 
     private void Rotate()
     {
-        Quaternion deltaRotation = Quaternion.Euler(m_EulerAngleVelocity * Time.fixedDeltaTime * angularSpeed);
+        if (m_isRotationStopped)
+            return;
+        if (angularSpeed <= 0)
+        {
+            m_isRotationStopped = true;
+            return;
+        }
+        Quaternion deltaRotation = Quaternion.Euler(m_EulerAngleVelocity * Time.fixedDeltaTime * angularSpeed * staminaManager.CurrentStamina);
         rbd.MoveRotation(rbd.rotation * deltaRotation);
     }
 }

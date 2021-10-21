@@ -4,18 +4,22 @@ using UnityEngine;
 using JMRSDK;
 using JMRSDK.InputModule;
 
-public class InputController : MonoBehaviour//,  ITouchHandler
+public class InputController : MonoBehaviour,IFn1Handler
 {
     private Vector3 m_moveDirection;
     [SerializeField]
     KeyCode horizontalPlus, verticalPlus;
     [SerializeField]
     KeyCode horizontalMinus, verticalMinus;
+    [SerializeField]
+    LayerMask stadiumLayer;
+    [SerializeField]
+    private float maxDistanceOfRay = 100f;
     private float m_movementZPositive;
     private float m_movementZNegetive;
     private float m_movementXPositive;
     private float m_movementXNegetive;
-
+    private bool isMoving = false;
     [HideInInspector]
     public Vector3 MoveDirection
     {
@@ -24,13 +28,36 @@ public class InputController : MonoBehaviour//,  ITouchHandler
     private void Start()
     {
         m_moveDirection = Vector3.zero;
-        //JMRInputManager.Instance.AddGlobalListener(gameObject);
+        JMRInputManager.Instance.AddGlobalListener(gameObject);
     }
     // Update is called once per frame
     void Update()
     {
-        KeyBoardMovement();
-        //Move();
+        //KeyBoardMovement();
+        RayMovement();
+    }
+
+    private void RayMovement()
+    {
+        if(!isMoving)
+        {
+            m_moveDirection = Vector3.zero;
+            return;
+        }
+        Ray pointerRay = JMRPointerManager.Instance.GetCurrentRay();
+        if(Physics.Raycast(pointerRay, out RaycastHit hit, maxDistanceOfRay,stadiumLayer))
+        {
+
+            var _tempMoveDirection = hit.point - transform.position;
+            m_moveDirection = new Vector3(_tempMoveDirection.x, 0, _tempMoveDirection.z);
+            m_moveDirection.Normalize();
+        }
+        else
+        {
+            m_moveDirection = Vector3.zero;
+        }
+
+
     }
 
     private void KeyBoardMovement()
@@ -44,116 +71,13 @@ public class InputController : MonoBehaviour//,  ITouchHandler
         m_moveDirection = new Vector3(_movementX, 0f, _movementZ);
         m_moveDirection.Normalize();
     }
-
-    private void Move()
+    public void OnFn1Action()
     {
-        // var _movementX = m_movementXNegetive + m_movementXPositive;
-        //var _movementZ = m_movementZNegetive + m_movementZPositive;
-         
-        m_moveDirection = new Vector3(JMRInteraction.GetTouch().x, 0f, JMRInteraction.GetTouch().y);
-        m_moveDirection.Normalize();
-    }
-    //public void OnSwipeLeft(SwipeEventData eventData, float value)
-    //{
-    //    Debug.Log("Left swipe");
-    //    m_movementXNegetive = value;
-    //}
-
-    //public void OnSwipeRight(SwipeEventData eventData, float value)
-    //{
-    //    Debug.Log("Right swipe");  
-    //    m_movementXPositive = value;
-    //}
-
-    //public void OnSwipeUp(SwipeEventData eventData, float value)
-    //{
-    //    Debug.Log("Upward swipe");
-    //    m_movementZPositive = value;
-    //}
-
-    //public void OnSwipeDown(SwipeEventData eventData, float value)
-    //{
-    //    Debug.Log("Downward swipe");
-    //    m_movementZNegetive = value;
-    //}
-
-    //public void OnSwipeStarted(SwipeEventData eventData)
-    //{
-    //    Debug.Log("Started swipe");
-    //    m_movementXPositive = 0;
-    //    m_movementXNegetive = 0;
-    //    m_movementZPositive = 0;
-    //    m_movementZNegetive = 0;
-    //}
-
-    //public void OnSwipeUpdated(SwipeEventData eventData, Vector2 swipeData)
-    //{
-    //    var _xData = swipeData.x;
-    //    var _zData = swipeData.y;
-    //    if (_xData >= 0)
-    //        m_movementXPositive = _xData;
-    //    else
-    //        m_movementXNegetive = _xData;
-
-    //    if (_zData >= 0)
-    //        m_movementZPositive = _zData;
-    //    else
-    //        m_movementZNegetive = _zData;
-
-    //}
-
-    //public void OnSwipeCompleted(SwipeEventData eventData)
-    //{
-    //    Debug.Log("Completed swipe");
-    //    m_movementXPositive = 0;
-    //    m_movementXNegetive = 0;
-    //    m_movementZPositive = 0;
-    //    m_movementZNegetive = 0;
-    //}
-
-    //public void OnSwipeCanceled(SwipeEventData eventData)
-    //{
-    //    Debug.Log("Cancelled swipe");
-    //}
-
-    public void OnTouchStart(TouchEventData eventData, Vector2 TouchData)
-    {
-
-        var _xData = TouchData.x;
-        var _zData = TouchData.y;
-        if (_xData >= 0)
-            m_movementXPositive = _xData;
+        Debug.Log("Fn1 pressed");
+        if (isMoving)
+            isMoving = false;
         else
-            m_movementXNegetive = _xData;
-
-        if (_zData >= 0)
-            m_movementZPositive = _zData;
-        else
-            m_movementZNegetive = _zData;
-        Debug.Log("Touch started");
+            isMoving = true;
     }
 
-    public void OnTouchStop(TouchEventData eventData, Vector2 TouchData)
-    {
-        m_movementXPositive = 0;
-        m_movementXNegetive = 0;
-        m_movementZPositive = 0;
-        m_movementZNegetive = 0;
-    }
-
-    public void OnTouchUpdated(TouchEventData eventData, Vector2 TouchData)
-    {
-        var _xData = TouchData.x;
-        var _zData = TouchData.y;
-        if (_xData >= 0)
-            m_movementXPositive = _xData;
-        else
-            m_movementXNegetive = _xData;
-
-        if (_zData >= 0)
-            m_movementZPositive = _zData;
-        else
-            m_movementZNegetive = _zData;
-        Debug.Log("Touch updating");
-    }
 }

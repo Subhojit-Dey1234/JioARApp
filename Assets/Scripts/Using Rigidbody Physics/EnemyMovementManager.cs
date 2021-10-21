@@ -1,10 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-[RequireComponent(typeof(InputController))]
-public class PlayerMovementManager : MonoBehaviour
+public class EnemyMovementManager : MonoBehaviour
 {
     [SerializeField]
     private Rigidbody rbd;
@@ -16,16 +12,18 @@ public class PlayerMovementManager : MonoBehaviour
     private float moveForce = 100;
     [SerializeField]
     private float collisionImpulseMultiplier = 1000f;
-    private InputController inputController;
+    private float safeDistance;
     private RotationManager rotationManager;
     private StateMachine stateMachine;
-    private Vector3 m_moveVector;
+    private GameObject player;
     private void Awake()
     {
-        inputController = GetComponent<InputController>();
         rotationManager = GetComponent<RotationManager>();
         stateMachine = GetComponent<StateMachine>();
+        player = GameObject.FindGameObjectWithTag("Player");
+        safeDistance = GetComponent<BeyBladeParameters>().SafeDistance;
     }
+
     private void FixedUpdate()
     {
         Move();
@@ -35,10 +33,18 @@ public class PlayerMovementManager : MonoBehaviour
     {
         if (rotationManager.IsRotationStopped)
             return;
-        moveDirection = inputController.MoveDirection; 
+        moveDirection = CalculateAIMovement();
         var _moveMultipier = stateMachine.CalculateMovementMultiplier();
-        rbd.AddForce(moveDirection * moveForce * _moveMultipier, ForceMode.Impulse);
+        rbd.AddForce(moveDirection * moveForce * _moveMultipier, ForceMode.VelocityChange);
         velocity = rbd.velocity.magnitude;
+    }
+
+    private Vector3 CalculateAIMovement()
+    {
+        var _moveDirection = stateMachine.Move(safeDistance);
+        _moveDirection.y = 0;
+        _moveDirection.Normalize();
+        return _moveDirection;
     }
 
     private void OnCollisionEnter(Collision _collision)
@@ -51,3 +57,4 @@ public class PlayerMovementManager : MonoBehaviour
     }
 
 }
+
